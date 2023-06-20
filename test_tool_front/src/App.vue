@@ -5,10 +5,10 @@
         <el-menu-item style="font-size: large;"><el-icon><Operation /></el-icon>测试小工具</el-menu-item>
         <el-menu-item index="/" >练习测试</el-menu-item>
         <!-- <el-menu-item index="/strategy">ESG STRATEGY</el-menu-item> -->
-        <el-menu-item index="/project" >项目测试</el-menu-item>
+        <el-menu-item index="/projectMain" >项目测试</el-menu-item>
         <!-- <p style="color:white;font-size: large;padding-left:10px;padding-right:20px;float: right;">测试小工具</p> -->
       </el-menu>
-      <el-main>
+      <el-main style="padding:0px;height:650px">
         <router-view/>
       </el-main>
 

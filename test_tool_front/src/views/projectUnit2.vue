@@ -1,24 +1,22 @@
 <template>
-  <div style="padding-top:20px">
-    <center>
-      <el-select v-model="Choice" class="m-2" placeholder="请选择" size="large" style="padding-right:20px">
-        <el-option v-for="item in options" :key="item.value" :label="item.label" :value="item.value" />
-      </el-select>
-      <el-button type="primary" size="large" @click="Test()">开始测试</el-button>
-    </center>
-  </div>
   <center>
-    <div style="padding-top:20px;width: 70%;">
+    <h3>                    <el-icon>
+                        <Grid />
+                    </el-icon> 单元测试 二轮测试结果</h3>
+  </center>
+  <center>
+    <div style="padding-top:20px;width: 90%;">
       <el-tabs type="border-card">
         <el-tab-pane label="测试结果可视化">
-          <div id="main" style="width: 600px;height:400px;"></div>
+          <div id="main" style="width: 400px;height:400px;float: left;"></div>
+          <div id="bar" style="width: 700px;height:400px;float:right"></div>
 
         </el-tab-pane>
 
         <el-tab-pane label="测试用例详细信息">
           <el-table :data="table" stripe highlight-current-row>
             <el-table-column label="用例序号" prop="id"></el-table-column>
-            <el-table-column label="预期输出" prop="expect_output"></el-table-column>
+            <el-table-column label="预期输出" prop="expected_output"></el-table-column>
             <el-table-column label="实际输出" prop="actual_output"></el-table-column>
             <el-table-column label="测试人员" prop="personnel"></el-table-column>
             <el-table-column label="时间" prop="time" min-width="100px"></el-table-column>
@@ -28,7 +26,7 @@
               filter-placement="bottom-end">
               <template #default="scope">
                 <el-tag disable-transitions effect="dark"
-                  :type="scope.row.pass_or_not === 'TRUE' || scope.row.pass_or_not === 'true' ? 'success' : 'danger'">
+                  :type="scope.row.pass_or_not == 'TRUE' || scope.row.pass_or_not == 'true' ? 'success' : 'danger'">
                   {{ scope.row.pass_or_not }}</el-tag>
               </template>
             </el-table-column>
@@ -50,43 +48,11 @@ export default {
   inject: ['reload'],
   data() {
     return {
-      options: [{
-        value: 'P1',
-        label: '判断三角形类型（边界类）',
-      },
-      {
-        value: 'P2',
-        label: '判断三角形类型（等价类）',
-      },
-      {
-        value: 'P3',
-        label: '万年历问题（边界类）',
-      },
-      {
-        value: 'P4',
-        label: '万年历问题（等价类）',
-      },
-      {
-        value: 'P5',
-        label: '万年历问题（决策表）',
-      },
-      {
-        value: 'P6',
-        label: '电信收费问题（决策表）',
-      },
-      {
-        value: 'P7',
-        label: '电脑销售系统（边界值）',
-      },
-      {
-        value: 'P8',
-        label: '销售系统佣金（白盒测试）',
-      }],
-      Choice: '',
       table: [],
       TrueCount: 0,
       FalseCount: 0,
       myChart: null,
+      myChart2: null,
     }
   },
   methods: {
@@ -113,18 +79,9 @@ export default {
       console.log('content1', content1)
       var result = content1[0]
 
-      const currentDate = new Date();
-      const year = currentDate.getFullYear();
-      const month = currentDate.getMonth() + 1; // 月份从 0 开始，所以要加 1
-      const day = currentDate.getDate();
-      const hour = currentDate.getHours();
-      const minute = currentDate.getMinutes();
-      const second = currentDate.getSeconds();
-      var date = `${year}-${month}-${day} ${hour}:${minute}:${second}`;
       var TrueCount = 0;
       var FalseCount = 0;
       for (var i = 0; i < result.length; i++) {
-        result[i].time = date;
         if (result[i].pass_or_not === "true" || result[i].pass_or_not === "TRUE")
           TrueCount = TrueCount + 1;
         if (result[i].pass_or_not === 'false' || result[i].pass_or_not === 'FALSE')
@@ -140,14 +97,9 @@ export default {
     filterMode(value, row) {
       return row.pass_or_not === value;
     },
-
-    //开始测试
-    Test() {
-      this.readExcelFile('/' + this.Choice + '.xlsx')
-    },
     draw() {
       console.log('4')
-      console.log('true1111111:',this.TrueCount)
+      console.log('true1111111:', this.TrueCount)
       this.myChart.setOption(
         {
           tooltip: {
@@ -158,7 +110,7 @@ export default {
             top: '5%',
             left: 'center'
           },
-          color:['#91cc75','#ee6666'],
+          color: ['#91cc75', '#ee6666'],
           series: [
             {
               name: 'Access From',
@@ -193,10 +145,102 @@ export default {
           ]
         }
       )
+      let myChart;
+
+myChart = echarts.init(document.getElementById("bar"));
+
+
+myChart.setOption(
+  {
+    title: {
+      text: '不同类单元用例测试情况'
+    },
+    color: ['#91cc75', '#ee6666'],
+    tooltip: {
+      trigger: 'axis',
+      axisPointer: {
+        type: 'cross',
+        crossStyle: {
+          color: '#999'
+        }
+      }
+    },
+    legend: {},
+    grid: {
+      left: '3%',
+      right: '4%',
+      bottom: '3%',
+      containLabel: true
+    },
+    yAxis: [{
+      type: 'value',
+      name: '用例数',
+      min: 0,
+      max: 12,
+      interval: 3,
+      axisLabel: {
+        formatter: '{value} 个'
+      }
+    },
+    {
+      type: 'value',
+      name: '通过率',
+      min: 0,
+      max: 1,
+      interval: 0.25,
+      axisLabel: {
+        formatter: '{value}'
+      }
+    }],
+    xAxis: {
+      type: 'category',
+      data: ['RepositoryServiceImpl', 'Repository',
+        'TransJobServiceImpl', 'NewTaskServiceImpl'],
+      axisLabel: {
+        interval: 0,
+        rotate: 40
+      }
+    },
+    series: [
+      {
+        name: '通过用例数',
+        type: 'bar',
+        data: [15, 9, 8, 5],
+        tooltip: {
+          valueFormatter: function (value) {
+            return value + ' 个';
+          }
+        }
+      },
+      {
+        name: '未通过用例数',
+        type: 'bar',
+        data: [0, 0, 0, 0],
+        tooltip: {
+          valueFormatter: function (value) {
+            return value + ' 个';
+          }
+        }
+      },
+      {
+        name: '通过率',
+        type: 'line',
+        yAxisIndex: 1,
+        data: [1, 1, 1, 1],
+        tooltip: {
+          valueFormatter: function (value) {
+            return (value * 100) + '%';
+          }
+        }
+      }
+    ]
+  }
+)
     }
   },
   mounted() {
     this.myChart = echarts.init(document.getElementById('main'));
+    this.readExcelFile('/单元测试v2.xlsx')
   }
 }
 
